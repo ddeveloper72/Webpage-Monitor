@@ -1,43 +1,21 @@
 import os
-import smtplib
 import time
 from datetime import datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from dotenv import load_dotenv
 
 import requests
+import urllib3
+from urllib3.exceptions import InsecureRequestWarning
+urllib3.disable_warnings(InsecureRequestWarning)
 
 load_dotenv()
 
 # Configuration
 # URL = "http://10.0.7.7/plogin"
-URL = "http://idp.hse.ie"
+URL = "http://10.0.7.8/plogin"
 CHECK_INTERVAL = 60  # in seconds
-EMAIL_SENDER = os.getenv("EMAIL_SENDER")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
-EMAIL_RECEIVER = os.getenv("EMAIL_RECEIVER")
-SMTP_SERVER = os.getenv("SMTP_SERVER")
-SMTP_PORT = os.getenv("SMTP_PORT")
+webhook_url = os.getenv("SLACK_WEBHOOK_URL")
 
-def send_email(subject, body):
-    """ Function to send email	"""
-    msg = MIMEMultipart()
-    msg['From'] = EMAIL_SENDER
-    msg['To'] = EMAIL_RECEIVER
-    msg['Subject'] = subject
-
-    msg.attach(MIMEText(body, 'plain'))
-
-    try:
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()
-        server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-        server.send_message(msg)
-        server.quit()        
-        print(f"Email sent: {subject}")
-    except Exception as e:
-        print(f"Failed to send email: {e}")
 
 def check_website():
     """ Function to check website status """
@@ -53,6 +31,19 @@ def check_website():
         print(f"Request failed: {e}")
         return False, str(e)
 
+
+def send_slack_alert(slack_webhook_url, message):
+    """ Function to send a Slack alert """
+    payload = {'text': message}
+    headers = {'Content-Type': 'application/json'}
+    try:
+        response = requests.post(slack_webhook_url, json=payload, headers=headers, timeout=10, verify=False)
+        if response.status_code != 200:
+            print(f"Failed to send Slack alert: {response.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to send Slack alert: {e}")
+
+
 def main():
     """ Main function """
     website_up = None # None means we don't know the status yet
@@ -62,9 +53,9 @@ def main():
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         if is_up and website_up is False:
-            send_email("Website is back up", f"The website {URL} is back up as of {current_time}.")
+            send_slack_alert(webhook_url, f"The website {URL} is back up as of {current_time}.")
         elif not is_up and website_up is not False:
-            send_email("Website is down", f"The website {URL} is down as of {current_time}. Error: {error}")
+            send_slack_alert(webhook_url, f"The website {URL} is down as of {current_time}. Error: {error}")
 
         website_up = is_up
         time.sleep(CHECK_INTERVAL)
