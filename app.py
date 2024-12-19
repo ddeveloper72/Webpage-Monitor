@@ -11,8 +11,8 @@ urllib3.disable_warnings(InsecureRequestWarning)
 load_dotenv()
 
 # Configuration
-# URL = "http://10.0.7.7/plogin"
-URL = "http://10.0.7.8/plogin"
+URL = "http://10.0.7.7/plogin"
+# URL = "http://10.0.7.8/plogin" # fake server for throwing an error
 CHECK_INTERVAL = 60  # in seconds
 webhook_url = os.getenv("SLACK_WEBHOOK_URL")
 
@@ -53,9 +53,12 @@ def main():
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         if is_up and website_up is False:
-            send_slack_alert(webhook_url, f"The website {URL} is back up as of {current_time}.")
+            send_slack_alert(webhook_url, f"*🚀 The website {URL} is back up as of {current_time}.*")
         elif not is_up and website_up is not False:
-            send_slack_alert(webhook_url, f"The website {URL} is down as of {current_time}. Error: {error}")
+            send_slack_alert(
+                webhook_url,
+                f"*🚧 The website {URL} is down as of {current_time}.* \n\n*Error:* {error}.",
+            )
 
         website_up = is_up
         time.sleep(CHECK_INTERVAL)
