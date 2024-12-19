@@ -11,8 +11,8 @@ urllib3.disable_warnings(InsecureRequestWarning)
 load_dotenv()
 
 # Configuration
-URL = "http://10.0.7.7/plogin"
-# URL = "http://10.0.7.8/plogin" # fake server for throwing an error
+# URL = "http://10.0.7.7/plogin"
+URL = "http://10.0.7.8/plogin" # fake server for throwing an error
 CHECK_INTERVAL = 60  # in seconds
 webhook_url = os.getenv("SLACK_WEBHOOK_URL")
 
@@ -34,7 +34,27 @@ def check_website():
 
 def send_slack_alert(slack_webhook_url, message):
     """ Function to send a Slack alert """
-    payload = {'text': message}
+    payload = {
+        'text': message,
+        'blocks': [
+            {
+                "type": "header",
+                "text": {
+                    "type": "plain_text",
+                    "text": "NCP-PPT Monitor Alert",
+                    "emoji": True
+                }
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": message
+                }
+            }
+        ]
+        
+        }
     headers = {'Content-Type': 'application/json'}
     try:
         response = requests.post(slack_webhook_url, json=payload, headers=headers, timeout=10, verify=False)
@@ -57,7 +77,7 @@ def main():
         elif not is_up and website_up is not False:
             send_slack_alert(
                 webhook_url,
-                f"*🚧 The website {URL} is down as of {current_time}.* \n\n*Error:* {error}.",
+                f"*The website {URL} is down as of {current_time}.* \n\n*Error:* {error}.",
             )
 
         website_up = is_up
