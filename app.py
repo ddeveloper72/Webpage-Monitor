@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import time
 from datetime import datetime
 from dotenv import load_dotenv
@@ -9,12 +10,12 @@ from urllib3.exceptions import InsecureRequestWarning
 
 urllib3.disable_warnings(InsecureRequestWarning)
 
+dotenv_path = Path(".env")
 load_dotenv()
 
 # Configuration
-# URL = "http://10.0.7.7/plogin"
-URL = "http://10.0.7.8/plogin"  # fake server for throwing an error
-CHECK_INTERVAL = 60  # in seconds
+DEVELOPMENT = os.getenv("DEVELOPMENT")
+CHECK_INTERVAL = 30  # in seconds
 webhook_url = os.getenv("SLACK_WEBHOOK_URL")
 
 
@@ -80,6 +81,11 @@ def main():
         website_up = is_up
         time.sleep(CHECK_INTERVAL)
 
+
+if DEVELOPMENT:
+    URL = os.environ.get("URL_DEVELOPMENT")
+else:
+    URL = os.environ.get("URL_PRODUCTION")
 
 if __name__ == "__main__":
     main()
