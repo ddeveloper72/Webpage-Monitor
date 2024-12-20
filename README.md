@@ -13,7 +13,7 @@ This is a simple Python script to monitor the status of a website and send alert
 1. Clone the repository:
    
     ```sh
-    git clone https://github.com/yourusername/ncp_monitor.git
+    git clone https://github.com/ddeveloper72/Webpage-Monitor.git
     cd ncp_monitor
     ```
     
