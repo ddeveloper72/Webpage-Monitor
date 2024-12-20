@@ -42,7 +42,7 @@ def send_slack_alert(slack_webhook_url, message):
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": "NCP-PPT Monitor Alert",
+                    "text": "Webpage Monitor Alert",
                     "emoji": True,
                 },
             },
