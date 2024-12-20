@@ -1,4 +1,4 @@
-# NCP Monitor
+# Webpage Monitor
 
 This is a simple Python script to monitor the status of a website and send alerts to a Slack channel if the website goes down or comes back up.
 
