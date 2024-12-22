@@ -14,7 +14,7 @@ This is a simple Python script to monitor the status of a website and send alert
    
     ```sh
     git clone https://github.com/ddeveloper72/Webpage-Monitor.git
-    cd ncp_monitor
+    cd Webpage-Monitor
     ```
     
 2. Create a virtual environment and activate it:
